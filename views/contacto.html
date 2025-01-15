@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/stylesheets/contacto.css">
+    <script src="/javascripts/popup.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    
+  <header class="header">
+    <h1>Consulta de Compositores</h1>
+  </header>
+
+  <nav class="nav">
+    <ul>
+      <li><a href="/inicio">Inicio</a></li>
+      <li><a href="/formulario">Formulario</a></li>
+      <li><a href="/consultar">Consultar</a></li>
+      <li><a href="/contacto">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <main>
+      <section class="consulta">
+        <h2>Contáctanos</h2>
+        <form>
+          <label for="nombre">Tu Nombre:</label><br>
+          <input type="text" id="name" name="name" placeholder="Ej: Juan Pérez" required><br><br>
+          
+          <label for="email">Tu Correo Electrónico:</label><br>
+          <input type="email" id="email" name="email" placeholder="Ej: ejemplo@correo.com" required><br><br>
+          
+          <label for="mensaje">Tu Mensaje:</label><br>
+          <textarea id="mensaje" name="mensaje" placeholder="Escribe tu mensaje aquí..." rows="5" required></textarea><br><br>
+          
+          <button type="submit">Enviar Mensaje</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <div id="popup" class="popup hidden">
+    <div class="popup-content">
+      <p>¡Gracias por tu mensaje! Nos pondremos en contacto contigo pronto.</p>
+      <button id="closePopup">Cerrar</button>
+    </div>
+  </div>
+  
+
+  <footer class="footer">
+    <p>&copy; 2025 Música Clásica. Todos los derechos reservados.</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta de Compositores</title>
+  <link rel="stylesheet" href="/stylesheets/consulta.css">
+</head>
+<body>
+
+  <header class="header">
+    <h1>Consulta de Compositores</h1>
+  </header>
+
+  <nav class="nav">
+    <ul>
+      <li><a href="/inicio">Inicio</a></li>
+      <li><a href="/formulario">Formulario</a></li>
+      <li><a href="/consultar">Consultar</a></li>
+      <li><a href="/contacto">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <main>
+      <section class="consulta">
+        <h2>Busca un Compositor</h2>
+        <form action="/mostrarConsulta" method="GET">
+          <label for="nombre">Nombre del Compositor:</label><br>
+          <input type="text" id="nombre" name="musico" placeholder="Ej: Wolfgang Amadeus Mozart" required><br><br>
+          <button type="submit">Consultar</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Música Clásica. Todos los derechos reservados.</p>
+  </footer>
+
+</body>
+</html>

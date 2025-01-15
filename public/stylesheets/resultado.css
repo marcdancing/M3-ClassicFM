@@ -1,0 +1,116 @@
+/* Restablece estilos */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Helvetica Neue', sans-serif;
+    background-color: #fff;
+    color: #333;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2rem;
+    margin: 20px 0;
+}
+
+.nav {
+    background-color: #000;
+    padding: 10px 30px;
+    text-align: center;
+}
+
+.nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+}
+
+.nav ul li {
+    margin: 0 15px;
+}
+
+.nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1rem;
+    text-transform: uppercase;
+}
+
+.container {
+    width: 90%;
+    margin: 20px auto;
+}
+
+.resultados {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    margin-top: 20px;
+    border: 1px solid #ccc;
+}
+
+.resultados {
+    width: 100%;
+    max-width: 1200px; /* Limita el ancho máximo de la tabla */
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.resultados table {
+    width: 100%;
+    max-width: 1200px; /* Limita el ancho máximo de la tabla */
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.resultados table th {
+    background-color: #000;
+    color: #fff;
+    padding: 15px;
+    text-transform: uppercase;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.resultados table td {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+.resultados table tr:nth-child(even) td {
+    background-color: #eaeaea; /* Alterna los colores de las filas */
+}
+
+.resultados table tr:hover td {
+    background-color: #dcdcdc; /* Color para destacar al pasar el ratón */
+}
+
+.resultados table th:first-child, .resultados table td:first-child {
+    text-align: left; /* Alinea la primera columna a la izquierda */
+}
+
+
+.footer {
+    background-color: #000;
+    color: #fff;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: auto;
+}
