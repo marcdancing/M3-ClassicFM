@@ -94,10 +94,6 @@ app.get('/mostrarConsulta', (req, res) => {
             </tr>
             ${tablaHTML}
           </table>
-
-        <div>
-            <p>${musicos}</p>
-        </div>
           <footer class="footer">
             <p>&copy; 2025 Música Clásica. Todos los derechos reservados.</p>
           </footer>
@@ -113,36 +109,60 @@ app.get('/mostrarConsulta', (req, res) => {
 // app.use((req, res, next) =>{
 //   res.status(404).sendFile(path.join(__dirname, 'views', 'error.html')); 
 // })
-// Ruta de login (POST)
+/* Ruta de login (POST) */
+
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  console.log(req.body);
 
-  // Concatenación insegura: SQL Injection permitido
-  const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
+  const query = `SELECT * FROM users WHERE username = ? AND password = ?`;
 
-  // Ejecución de la consulta con SQL Injection permitido
-  db.get(query, (err, row) => {
+  db.get(query, [username, password], (err, row) => {
     if (err) {
       console.error(err.message);
       res.status(500).send('Error en la base de datos');
-      console.log(query);
       return;
     }
 
     if (row) {
-      // Si se encuentra el usuario, se considera un login exitoso
-      console.log(query)
       res.sendFile(path.join(__dirname, '/views/menu.html'));
       console.log("Login Exitoso!");
     } else {
       // Si no se encuentra el usuario, se rechaza el login
       res.sendFile(path.join(__dirname, '/views/error.html'));
-
-
     }
   });
 });
+
+
+// app.post('/login', (req, res) => {
+//   const { username, password } = req.body;
+//   console.log(req.body);
+
+//   // Concatenación insegura: SQL Injection permitido
+//   const query = `SELECT * FROM users WHERE username = '${username}' AND password = '${password}'`;
+
+//   // Ejecución de la consulta con SQL Injection permitido
+//   db.get(query, (err, row) => {
+//     if (err) {
+//       console.error(err.message);
+//       res.status(500).send('Error en la base de datos');
+//       console.log(query);
+//       return;
+//     }
+
+//     if (row) {
+//       // Si se encuentra el usuario, se considera un login exitoso
+//       console.log(query)
+//       res.sendFile(path.join(__dirname, '/views/menu.html'));
+//       console.log("Login Exitoso!");
+//     } else {
+//       // Si no se encuentra el usuario, se rechaza el login
+//       res.sendFile(path.join(__dirname, '/views/error.html'));
+
+
+//     }
+//   });
+// });
 
 
 app.post('/insertar', (req, res) => {

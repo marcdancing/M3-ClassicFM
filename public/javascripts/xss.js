@@ -1,4 +1,5 @@
-// Crear el contenedor del mensaje
+/******* Este archivo está solamente para diisponer del código para hacer el ataque XSS. No está linkado en ningún fichero HTML *******/
+
 const messageDiv = document.createElement('div');
 messageDiv.textContent = 'Has Sido Hackeado';
 
