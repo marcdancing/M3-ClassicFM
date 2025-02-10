@@ -1,10 +1,12 @@
 const express = require('express');
 const sqlite3 = require('sqlite3');
 const path = require('path');
-
 const app = express();
 const port = 8000;
 const bodyParser = require('body-parser');
+const crypto = require('crypto');
+const speakeasy = require('speakeasy');
+const qrcode = require('qrcode');
 
 // Configuració de SQLite
 const dbPath = path.resolve(__dirname, 'database.db');
@@ -40,7 +42,106 @@ app.get('/contacto', (req, res) => {
   res.sendFile(path.join(__dirname, '/views/contacto.html')); 
 })
 
+app.get('/crearUsuario', (req, res) => {
+  res.sendFile(path.join(__dirname, '/views/crearUsuario.html'));
+});
 
+
+
+/***** Google Authenticator *****/
+
+// function googleAuthenticator() {
+// // Generamos la clave
+// var secret = speakeasy.generateSecret({
+//   name: "classicFM",
+//   length: 20,
+//   issuer: "classicFM"
+// })
+
+// console.log(secret); 
+
+// // Generamos el código QR
+// qrcode.toDataURL(secret.otpauth_url, function(err, data_url) {
+//   //console.log(data_url);  
+// })
+
+// var verificado = speakeasy.totp.verify({
+//   secret: ':MXu[(eI/[<*pGP[A13K',
+//   encoding: 'ascii',
+//   token: '939417'
+
+// })
+
+
+// console.log(verificado); 
+// }
+
+// googleAuthenticator(); 
+
+function googleAuthenticator() {
+  let secreto; 
+  // Generar el secreto
+  // var secret = speakeasy.generateSecret({
+  //   name: "classicFM",
+  //   length: 20,
+  //   issuer: "classicFM"
+  // });
+
+  console.log("Secreto base32:", secret.base32);
+
+  // Generar el QR
+  qrcode.toDataURL(secret.otpauth_url, function (err, data_url) {
+    console.log("Código QR:", data_url);
+  });
+
+  // Simular la verificación con un código generado
+  var token = speakeasy.totp({
+    secret: secret.base32,
+    encoding: 'base32'
+  });
+
+  console.log("Token generado:", token);
+
+  var verificado = speakeasy.totp.verify({
+    secret: secret.base32,
+    encoding: 'base32',
+    token: token,
+    window: 1 // Permitir pequeñas diferencias de tiempo
+  });
+
+ // console.log("Verificado:", verificado);
+}
+
+// googleAuthenticator();
+
+
+app.get('/autenticarMFA', (req, res) => {
+
+  const codigo = req.query.codigo;
+
+  const secret = 'IJDHQ3TSJUXUSPZ6KNXHCQZZPVCE2WTF';
+
+  if (!codigo) {
+    return res.status(400).send('Falta el código de autenticación');
+  }
+
+  const verificado = speakeasy.totp.verify({
+    secret: secret,
+    encoding: 'base32',
+    token: codigo, 
+    window: 1
+  });
+
+  if (verificado) {
+    console.log(verificado);
+    res.redirect('/inicio');
+  
+  } else{
+    console.log(verificado);
+    res.status(401).send('Código incorrecto');
+  }
+
+}); 
 
 app.get('/mostrarConsulta', (req, res) => {
 
@@ -111,12 +212,41 @@ app.get('/mostrarConsulta', (req, res) => {
 // })
 /* Ruta de login (POST) */
 
+// app.post('/login', (req, res) => {
+//   //const { nombre: username, password } = req.body;
+
+//   const { username, password } = req.body;
+
+//   const query = `SELECT * FROM users WHERE username = ? AND password = ?`;
+//   console.log(query);  
+
+//   db.get(query, [username, password], (err, row) => {
+//     if (err) {
+//       console.error(err.message);
+//       res.status(500).send('Error en la base de datos');
+//       return;
+//     }
+
+//     if (row) {
+//       res.sendFile(path.join(__dirname, '/views/menu.html'));
+//       console.log("Login Exitoso!");
+//     } else {
+//       // Si no se encuentra el usuario, se rechaza el login
+//       console.log(err); 
+//       res.sendFile(path.join(__dirname, '/views/error.html'));
+//     }
+//   });
+// });
+
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
+  // Generar el hash de la contraseña ingresada
+  const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
+
   const query = `SELECT * FROM users WHERE username = ? AND password = ?`;
 
-  db.get(query, [username, password], (err, row) => {
+  db.get(query, [username, hashedPassword], (err, row) => {
     if (err) {
       console.error(err.message);
       res.status(500).send('Error en la base de datos');
@@ -124,15 +254,14 @@ app.post('/login', (req, res) => {
     }
 
     if (row) {
-      res.sendFile(path.join(__dirname, '/views/menu.html'));
       console.log("Login Exitoso!");
+      res.sendFile(path.join(__dirname, '/views/authenticator.html'));
     } else {
-      // Si no se encuentra el usuario, se rechaza el login
+      console.log("Usuario o contraseña incorrectos");
       res.sendFile(path.join(__dirname, '/views/error.html'));
     }
   });
 });
-
 
 // app.post('/login', (req, res) => {
 //   const { username, password } = req.body;
@@ -163,6 +292,52 @@ app.post('/login', (req, res) => {
 //     }
 //   });
 // });
+
+
+// app.post('/insertarUsuario', (req, res) => {
+//   console.log('Datos recibidos:', req.body);
+//   const { username, password } = req.body;
+
+//   const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
+
+//   const query = `INSERT INTO users (username, password) VALUES (?, ?)`;
+
+//   db.run(query, [username, hashedPassword], function (error) {
+//       if (error) {
+//           console.error('No se ha podido insertar el usuario:', error);
+//           res.sendFile(path.join(__dirname, '/views/error.html')); 
+//       } else {
+//           console.log('Usuario añadido correctamente con ID:', this.lastID);
+//           res.sendFile(path.join(__dirname, '/views/success.html')); 
+//       }
+//   });
+// }); 
+
+app.post('/insertarUsuario', (req, res) => {
+  console.log('Datos recibidos:', req.body);
+  const { nombre: username, password } = req.body;
+
+  if (!username || !password) {
+    console.error('Error: Falta el username o el password');
+    return res.status(400).send('Faltan datos para la inserción');
+  }
+
+  const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
+
+  const query = `INSERT INTO users (username, password) VALUES (?, ?)`;
+
+  db.run(query, [username, hashedPassword], function (error) {
+    if (error) {
+      console.error('No se ha podido insertar el usuario:', error);
+      res.send(`File(path.join(__dirname, '/views/error.html'));`)
+    } else {
+      console.log('Usuario añadido correctamente con ID:', this.lastID);
+      res.send(`<h2>Usuario agregado correctamente</h2> <br><a href="/">Volver al inicio</a>`);
+
+    }
+  });
+});
+
 
 
 app.post('/insertar', (req, res) => {

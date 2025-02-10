@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Añade código MFA</title>
+  <link rel="stylesheet" href="/stylesheets/consulta.css">
+</head>
+<body>
+
+  <header class="header">
+    <h1>Autenticación - MFA</h1>
+  </header>
+
+  <nav class="nav">
+    <ul>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <main>
+      <section class="consulta">
+        <form action="/autenticarMFA" method="GET">
+          <label for="nombre">Introduce el código MFA:</label><br>
+          <input type="text" id="codigo" name="codigo" required><br><br>
+          <button type="submit">Aceptar</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p>&copy; 2025 Marc Ollé Pastor. Todos los derechos reservados.</p>
+  </footer>
+
+</body>
+</html>

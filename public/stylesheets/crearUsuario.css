@@ -1,0 +1,87 @@
+/* Restablece estilos predeterminados */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Helvetica Neue', sans-serif;
+}
+
+/* Fondo general */
+body {
+    background-color: #f4f4f4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+/* Contenedor del formulario */
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+/* Estilo del formulario */
+.formulario {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.formulario h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Estilo de los labels */
+.formulario label {
+    display: block;
+    font-size: 1rem;
+    margin-top: 10px;
+    color: #333;
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Estilo de los inputs */
+.formulario input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.formulario input:focus {
+    border-color: #000;
+    outline: none;
+}
+
+/* Estilo del botón */
+.formulario button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background-color: #000;
+    color: #fff;
+    font-size: 1rem;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.formulario button:hover {
+    background-color: #333;
+    transform: scale(1.02);
+}
