@@ -130,6 +130,8 @@
         }
 
         document.getElementById("captchaForm").addEventListener("submit", function(event) {
+          const selectedAnswer = document.getElementById("captchaAnswer").value;
+          console.log("Respuesta seleccionada:", selectedAnswer);
             if (document.getElementById("captchaAnswer").value === "") {
                 event.preventDefault();
                 alert("Selecciona una figura musical.");

@@ -15,7 +15,7 @@ app.use(session({
 
   secret: "fjeclot",
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true, 
 
 }));
 
@@ -388,7 +388,7 @@ app.get("/generarCaptcha", (req, res) => {
   
   req.session.correctAnswer = correctAnswer; // Guardamos la respuesta en la sesión
   
-  res.json({ question: `Selecciona la figura musical: ${correctAnswer}`, correctAnswer });
+  res.json({ question: `Selecciona la figura musical: ${correctAnswer}` });
 });
 
 app.post("/verificarCaptcha", (req, res) => {
@@ -396,12 +396,12 @@ app.post("/verificarCaptcha", (req, res) => {
   const correctAnswer = req.session.correctAnswer;
 
   if (!req.session.usuario) {
-      return res.status(400).send("No hay datos de usuario. Regístrese primero.");
+      return res.status(400).send("No hay datos recibidos.");
   }
 
-  const { username, password } = req.session.usuario;
+  const { nombre: username, password } = req.session.usuario;
 
-  if (captchaAnswer !== correctAnswer) {
+  if (String(captchaAnswer) !== String(correctAnswer)) {
       console.log("Captcha incorrecto:", captchaAnswer, correctAnswer);
       return res.status(400).send("❌ CAPTCHA incorrecto. Inténtalo de nuevo.");
   }
