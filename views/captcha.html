@@ -1,88 +1,142 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CAPTCHA Example</title>
-  <style>
-    #captcha {
-      font-size: 20px;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTCHA Musical</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .captcha-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+
+        #captchaQuestion {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .captcha-images {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .captcha-images img {
+            width: 100px;
+            height: 100px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-radius: 5px;
+        }
+
+        .captcha-images img:hover {
+            transform: scale(1.1);
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .selected {
+            border: 3px solid #007bff;
+            box-shadow: 0px 4px 10px rgba(0, 123, 255, 0.5);
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-  <form id="myForm" action="/verificarCaptcha" method="post">
-    <label for="name">Name:</label><br>
-    <input type="text" id="name" name="name"><br>
-    <label for="email">Email:</label><br>
-    <input type="email" id="email" name="email"><br>
-    <div id="captcha"></div><br>
-    <input type="text" id="captchaInput" name="captchaInput" placeholder="Enter the CAPTCHA" required><br>
-    <input type="hidden" id="captchaHidden" name="captchaHidden">
-    <button type="submit">Submit</button>
-  </form>
+    <div class="captcha-container">
+        <h2>Verificación CAPTCHA Musical</h2>
+        <p id="captchaQuestion"></p>
 
-  <script>
-    let failedAttempts = parseInt(localStorage.getItem('failedAttempts')) || 0;
-    const lockoutTime = 30 * 60 * 1000; // 30 minuts
-    const lockoutKey = 'lockoutTimestamp';
+        <div class="captcha-images" id="captchaImages"></div>
 
-    function isLockedOut() {
-      const lockoutTimestamp = localStorage.getItem(lockoutKey);
-      if (lockoutTimestamp) {
-        const elapsedTime = Date.now() - parseInt(lockoutTimestamp);
-        if (elapsedTime < lockoutTime) {
-          window.location.href = "/bloqueado";
-          return true;
-        } else {
-          localStorage.removeItem(lockoutKey);
-          localStorage.setItem('failedAttempts', 0);
+        <form id="captchaForm" action="/verificarCaptcha" method="POST">
+            <input type="hidden" id="captchaAnswer" name="captchaAnswer">
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+
+    <script>
+        const captchaData = [
+            { name: "negra", image: "/images/negra.png" },
+            { name: "blanca", image: "/images/blanca.png" },
+            { name: "corchea", image: "/images/corchea.png" },
+            { name: "semicorchea", image: "/images/semicorchea.png" },
+            { name: "silencio", image: "/images/silencio-negra.png" },
+            { name: "claveSol", image: "/images/clave-sol.png" },
+            { name: "claveFa", image: "/images/clave-fa.png" },
+            { name: "claveDo", image: "/images/clave-do.png" }
+        ];
+
+        let correctAnswer = "";
+
+        function loadCaptcha() {
+            fetch("/generarCaptcha")
+                .then(response => response.json())
+                .then(data => {
+                    correctAnswer = data.correctAnswer;
+                    document.getElementById("captchaQuestion").textContent = data.question;
+                    renderImages();
+                });
         }
-      }
-      return false;
-    }
 
-    function generateCaptcha() {
-      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      let captcha = '';
-      for (let i = 0; i < 6; i++) {
-        captcha += characters.charAt(Math.floor(Math.random() * characters.length));
-      }
-      return captcha;
-    }
+        function renderImages() {
+            const shuffledImages = captchaData.sort(() => Math.random() - 0.5);
+            document.getElementById("captchaImages").innerHTML = "";
 
-    function renderCaptcha() {
-      const captcha = generateCaptcha();
-      document.getElementById('captcha').textContent = captcha;
-      document.getElementById('captchaHidden').value = captcha;
-    }
-
-    function validateCaptcha() {
-      const captcha = document.getElementById('captcha').textContent;
-      const userInput = document.getElementById('captchaInput').value;
-      return userInput === captcha;
-    }
-
-    if (!isLockedOut()) {
-      renderCaptcha();
-    }
-
-    document.getElementById('myForm').addEventListener('submit', function (event) {
-      if (!validateCaptcha()) {
-        event.preventDefault();
-        failedAttempts++;
-        localStorage.setItem('failedAttempts', failedAttempts);
-
-        if (failedAttempts >= 3) {
-          localStorage.setItem(lockoutKey, Date.now());
-          window.location.href = "/bloqueado";
-        } else {
-          alert('CAPTCHA es incorrecto! Oportunidades restantes: ' + (3 - failedAttempts));
-          renderCaptcha();
+            shuffledImages.forEach(item => {
+                const img = document.createElement("img");
+                img.src = item.image;
+                img.dataset.name = item.name;
+                img.addEventListener("click", () => selectImage(img));
+                document.getElementById("captchaImages").appendChild(img);
+            });
         }
-      }
-    });
-  </script>
+
+        function selectImage(img) {
+            document.querySelectorAll(".captcha-images img").forEach(el => el.classList.remove("selected"));
+            img.classList.add("selected");
+            document.getElementById("captchaAnswer").value = img.dataset.name;
+        }
+
+        document.getElementById("captchaForm").addEventListener("submit", function(event) {
+            if (document.getElementById("captchaAnswer").value === "") {
+                event.preventDefault();
+                alert("Selecciona una figura musical.");
+            }
+        });
+
+        loadCaptcha();
+    </script>
 </body>
 </html>

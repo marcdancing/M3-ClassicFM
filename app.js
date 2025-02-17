@@ -8,6 +8,8 @@ const crypto = require('crypto');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
 const session = require('express-session');
+const { createCanvas } = require("canvas");
+
 
 app.use(session({
 
@@ -344,31 +346,108 @@ app.post('/infoUsuarioInsertar', (req, res) => {
   res.redirect('/captcha');
 });
 
-app.post('/verificarCaptcha', (req, res) => {
 
-  const { captchaInput, captchaHidden  } = req.body;
-  const { nombre: username, password } = req.session.usuario;
+// app.use(express.urlencoded({ extended: true }));
+// app.use(session({ secret: "captcha_secret", resave: false, saveUninitialized: true }));
 
-  if (captchaInput !== captchaHidden){
-    console.log('Captcha:', captchaInput, captchaHidden); 
-    return res.status(400).send('Captcha incorrecto');
+// function generateCaptchaText() {
+//   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+//   return Array.from({ length: 6 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join("");
+// }
+
+// function generateCaptchaImage(text) {
+//   const canvas = createCanvas(150, 50);
+//   const ctx = canvas.getContext("2d");
+//   ctx.fillStyle = "white";
+//   ctx.fillRect(0, 0, 150, 50);
+//   ctx.font = "30px Arial";
+//   ctx.fillStyle = "black";
+//   ctx.fillText(text, 20, 35);
+//   return canvas.toBuffer();
+// }
+
+// app.get("/generarCaptcha", (req, res) => {
+//   const captchaText = generateCaptchaText();
+//   req.session.captcha = captchaText;
+//   res.set("Content-Type", "image/png");
+//   res.send(generateCaptchaImage(captchaText));
+// });
+
+// app.post("/verificarCaptcha", (req, res) => {
+//   if (req.body.captchaInput === req.session.captcha) {
+//     res.send("CAPTCHA correcto. Formulario enviado.");
+//   } else {
+//     res.send("CAPTCHA incorrecto. Intenta de nuevo.");
+//   }
+// });
+
+
+app.get("/generarCaptcha", (req, res) => {
+  const questionTypes = ["negra", "blanca", "corchea", "semicorchea", "silencio"];
+  const correctAnswer = questionTypes[Math.floor(Math.random() * questionTypes.length)];
+  
+  req.session.correctAnswer = correctAnswer; // Guardamos la respuesta en la sesión
+  
+  res.json({ question: `Selecciona la figura musical: ${correctAnswer}`, correctAnswer });
+});
+
+app.post("/verificarCaptcha", (req, res) => {
+  const { captchaAnswer } = req.body;
+  const correctAnswer = req.session.correctAnswer;
+
+  if (!req.session.usuario) {
+      return res.status(400).send("No hay datos de usuario. Regístrese primero.");
   }
 
-  const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
+  const { username, password } = req.session.usuario;
 
-  const query = `INSERT INTO users (username, password) VALUES (?, ?)`;
+  if (captchaAnswer !== correctAnswer) {
+      console.log("Captcha incorrecto:", captchaAnswer, correctAnswer);
+      return res.status(400).send("❌ CAPTCHA incorrecto. Inténtalo de nuevo.");
+  }
 
+  // Encriptar contraseña con MD5
+  const hashedPassword = crypto.createHash("md5").update(password).digest("hex");
+
+  const query = "INSERT INTO users (username, password) VALUES (?, ?)";
+  
   db.run(query, [username, hashedPassword], function (error) {
-    if (error) {
-      console.error('No se ha podido insertar el usuario:', error);
-      res.send(`File(path.join(__dirname, '/views/error.html'));`)
-    } else {
-      console.log('Usuario añadido correctamente con ID:', this.lastID);
-      res.send(`<h2>Usuario agregado correctamente</h2> <br><a href="/">Volver al inicio</a>`);
-
-    }
+      if (error) {
+          console.error("No se ha podido insertar el usuario:", error);
+          res.sendFile(path.join(__dirname, "/views/error.html"));
+      } else {
+          console.log("Usuario añadido correctamente con ID:", this.lastID);
+          res.send(`<h2>✅ Usuario agregado correctamente</h2><br><a href="/">Volver al inicio</a>`);
+      }
   });
-}); 
+});
+
+
+// app.post('/verificarCaptcha', (req, res) => {
+
+//   const { captchaInput, captchaHidden  } = req.body;
+//   const { nombre: username, password } = req.session.usuario;
+
+//   if (captchaInput !== captchaHidden){
+//     console.log('Captcha:', captchaInput, captchaHidden); 
+//     return res.status(400).send('Captcha incorrecto');
+//   }
+
+//   const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
+
+//   const query = `INSERT INTO users (username, password) VALUES (?, ?)`;
+
+//   db.run(query, [username, hashedPassword], function (error) {
+//     if (error) {
+//       console.error('No se ha podido insertar el usuario:', error);
+//       res.send(`File(path.join(__dirname, '/views/error.html'));`)
+//     } else {
+//       console.log('Usuario añadido correctamente con ID:', this.lastID);
+//       res.send(`<h2>Usuario agregado correctamente</h2> <br><a href="/">Volver al inicio</a>`);
+
+//     }
+//   });
+// }); 
 
 // app.post('/insertarUsuario', (req, res) => {
 //   console.log('Datos recibidos:', req.body);
