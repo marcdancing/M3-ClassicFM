@@ -7,6 +7,15 @@ const bodyParser = require('body-parser');
 const crypto = require('crypto');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
+const session = require('express-session');
+
+app.use(session({
+
+  secret: "fjeclot",
+  resave: false,
+  saveUninitialized: true
+
+}));
 
 // Configuració de SQLite
 const dbPath = path.resolve(__dirname, 'database.db');
@@ -46,6 +55,14 @@ app.get('/crearUsuario', (req, res) => {
   res.sendFile(path.join(__dirname, '/views/crearUsuario.html'));
 });
 
+app.get('/captcha', (req, res) => {
+  res.sendFile(path.join(__dirname, '/views/captcha.html'));
+});
+
+app.get('/bloqueado', (req, res) => {
+  res.sendFile(path.join(__dirname, '/views/bloqueado.html'));
+});
+
 
 
 /***** Google Authenticator *****/
@@ -78,7 +95,7 @@ app.get('/crearUsuario', (req, res) => {
 
 // googleAuthenticator(); 
 
-function googleAuthenticator() {
+function googleAuthenticator() { // Código para generar un código QR y un token de verificación
   let secreto; 
   // Generar el secreto
   // var secret = speakeasy.generateSecret({
@@ -134,7 +151,7 @@ app.get('/autenticarMFA', (req, res) => {
 
   if (verificado) {
     console.log(verificado);
-    res.redirect('/inicio');
+    res.redirect('/captcha');
   
   } else{
     console.log(verificado);
@@ -313,13 +330,28 @@ app.post('/login', (req, res) => {
 //   });
 // }); 
 
-app.post('/insertarUsuario', (req, res) => {
-  console.log('Datos recibidos:', req.body);
-  const { nombre: username, password } = req.body;
+app.post('/infoUsuarioInsertar', (req, res) => {
 
-  if (!username || !password) {
-    console.error('Error: Falta el username o el password');
+  const { nombre, password } = req.body;
+
+  if (!nombre || !password){
     return res.status(400).send('Faltan datos para la inserción');
+  }
+
+  req.session.usuario = {nombre, password};
+  console.log('Valores: ', req.session.usuario); 
+
+  res.redirect('/captcha');
+});
+
+app.post('/verificarCaptcha', (req, res) => {
+
+  const { captchaInput, captchaHidden  } = req.body;
+  const { nombre: username, password } = req.session.usuario;
+
+  if (captchaInput !== captchaHidden){
+    console.log('Captcha:', captchaInput, captchaHidden); 
+    return res.status(400).send('Captcha incorrecto');
   }
 
   const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
@@ -336,7 +368,33 @@ app.post('/insertarUsuario', (req, res) => {
 
     }
   });
-});
+}); 
+
+// app.post('/insertarUsuario', (req, res) => {
+//   console.log('Datos recibidos:', req.body);
+//   const { nombre: username, password } = req.session.usuario;
+//   ///const { nombre: username, password } = req.body;
+
+//   if (!username || !password) {
+//     console.error('Error: Falta el username o el password');
+//     return res.status(400).send('Faltan datos para la inserción');
+//   }
+
+//   const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
+
+//   const query = `INSERT INTO users (username, password) VALUES (?, ?)`;
+
+//   db.run(query, [username, hashedPassword], function (error) {
+//     if (error) {
+//       console.error('No se ha podido insertar el usuario:', error);
+//       res.send(`File(path.join(__dirname, '/views/error.html'));`)
+//     } else {
+//       console.log('Usuario añadido correctamente con ID:', this.lastID);
+//       res.send(`<h2>Usuario agregado correctamente</h2> <br><a href="/">Volver al inicio</a>`);
+
+//     }
+//   });
+// });
 
 
 

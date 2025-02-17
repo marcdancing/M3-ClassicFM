@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAPTCHA Example</title>
+  <style>
+    #captcha {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <form id="myForm" action="/verificarCaptcha" method="post">
+    <label for="name">Name:</label><br>
+    <input type="text" id="name" name="name"><br>
+    <label for="email">Email:</label><br>
+    <input type="email" id="email" name="email"><br>
+    <div id="captcha"></div><br>
+    <input type="text" id="captchaInput" name="captchaInput" placeholder="Enter the CAPTCHA" required><br>
+    <input type="hidden" id="captchaHidden" name="captchaHidden">
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    let failedAttempts = parseInt(localStorage.getItem('failedAttempts')) || 0;
+    const lockoutTime = 30 * 60 * 1000; // 30 minuts
+    const lockoutKey = 'lockoutTimestamp';
+
+    function isLockedOut() {
+      const lockoutTimestamp = localStorage.getItem(lockoutKey);
+      if (lockoutTimestamp) {
+        const elapsedTime = Date.now() - parseInt(lockoutTimestamp);
+        if (elapsedTime < lockoutTime) {
+          window.location.href = "/bloqueado";
+          return true;
+        } else {
+          localStorage.removeItem(lockoutKey);
+          localStorage.setItem('failedAttempts', 0);
+        }
+      }
+      return false;
+    }
+
+    function generateCaptcha() {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      let captcha = '';
+      for (let i = 0; i < 6; i++) {
+        captcha += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      return captcha;
+    }
+
+    function renderCaptcha() {
+      const captcha = generateCaptcha();
+      document.getElementById('captcha').textContent = captcha;
+      document.getElementById('captchaHidden').value = captcha;
+    }
+
+    function validateCaptcha() {
+      const captcha = document.getElementById('captcha').textContent;
+      const userInput = document.getElementById('captchaInput').value;
+      return userInput === captcha;
+    }
+
+    if (!isLockedOut()) {
+      renderCaptcha();
+    }
+
+    document.getElementById('myForm').addEventListener('submit', function (event) {
+      if (!validateCaptcha()) {
+        event.preventDefault();
+        failedAttempts++;
+        localStorage.setItem('failedAttempts', failedAttempts);
+
+        if (failedAttempts >= 3) {
+          localStorage.setItem(lockoutKey, Date.now());
+          window.location.href = "/bloqueado";
+        } else {
+          alert('CAPTCHA es incorrecto! Oportunidades restantes: ' + (3 - failedAttempts));
+          renderCaptcha();
+        }
+      }
+    });
+  </script>
+</body>
+</html>

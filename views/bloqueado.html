@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso Bloqueado</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f8f8;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            color: black;
+            margin-bottom: 20px;
+        }
+        #timer {
+            font-size: 48px;
+            font-weight: bold;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Has excedido el número de intentos. Podrás intentar nuevamente en:</h1>
+        <div id="timer">30:00</div>
+        <a href="/">Volver al inicio</a>
+    </div>
+    
+    <script>
+        const lockoutKey = 'lockoutTimestamp';
+        const lockoutTime = 30 * 60 * 1000;
+        
+        function getRemainingTime() {
+            const lockoutTimestamp = localStorage.getItem(lockoutKey);
+            if (!lockoutTimestamp) return 0;
+            const elapsedTime = Date.now() - parseInt(lockoutTimestamp);
+            return Math.max(0, lockoutTime - elapsedTime);
+        }
+        
+        function startCountdown() {
+            let remainingTime = getRemainingTime();
+            if (remainingTime <= 0) {
+                localStorage.removeItem(lockoutKey);
+                window.location.href = "/";
+                return;
+            }
+            
+            function updateTimer() {
+                const minutes = Math.floor(remainingTime / 60000);
+                const seconds = Math.floor((remainingTime % 60000) / 1000);
+                document.getElementById("timer").textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                
+                if (remainingTime > 0) {
+                    remainingTime -= 1000;
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    localStorage.removeItem(lockoutKey);
+                    window.location.href = "/";
+                }
+            }
+            updateTimer();
+        }
+        
+        startCountdown();
+    </script>
+</body>
+</html>
